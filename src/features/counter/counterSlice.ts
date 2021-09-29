@@ -26,16 +26,32 @@ export const incrementAsync = createAsyncThunk(
   }
 );
 
+/*
+スライスはアプリの単一機能のReduxレデューサーロジックとアクションのコレクション
+通常は1つのファイルにまとめて定義される
+ルートRedux状態オブジェクトを複数のスライスに分割することに由来する
+
+スライスレデューサーとアクションの作成
+*/
 export const counterSlice = createSlice({
   name: 'counter',
   initialState,
-  // The `reducers` field lets us define reducers and generate associated actions
+  /* 
+  アクションはプレーンオブジェクト(0個以上のキーと値を持つ)であり、typeフィールドは常に文字列
+  アクションオブジェクトを作成して返す「アクションクリエーター関数」がある
+  これらのアクションオブジェクト、型文字列、アクションの内容をcreateSliceで定義する
+  UNDERSTAND: Reduxの状態(ストア)に触るときは「スライスに登録されたアクションを呼び出す」
+
+  レデューサーが現在の値を変更することは、Reduxでは許可されていない
+  UNDERSTAND: 必ずアクションを介してstoreの内容を変更する
+  米: storeの内容をコピーすることは可能
+
+  */
   reducers: {
     increment: (state) => {
-      // Redux Toolkit allows us to write "mutating" logic in reducers. It
-      // doesn't actually mutate the state because it uses the Immer library,
-      // which detects changes to a "draft state" and produces a brand new
-      // immutable state based off those changes
+      /*
+      incrementレデューサーは常に1を追加する(1を追加しただけで更新はしていない?)
+      */
       state.value += 1;
     },
     decrement: (state) => {
@@ -62,9 +78,20 @@ export const counterSlice = createSlice({
 
 export const { increment, decrement, incrementByAmount } = counterSlice.actions;
 
-// The function below is called a selector and allows us to select a value from
-// the state. Selectors can also be defined inline where they're used instead of
-// in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
+/*
+useSelectorフックを使用すると、コンポーネントはReduxストアの状態から必要なデータを抽出できる
+Reduxストアにアクセスしたいが、コンポーネントファイルに直接ストアの状態をインポートすることは許可されていない
+useSelectorを使用することでstore.getStateを呼び出すことができるので、
+下記の記述でストアの値を取得することができる
+const count = useSelector(selectCount)
+また、アクションを呼び出す場合はuseDispatchを使用する
+const dispatch = useDispatch()
+
+コンポーネントがuseSelector, useDispatchフックを使用してReduxストアと通信できることを確認した
+しかし、ストアをインポートしていないのに、フックはどのようにしてReduxストアと通信するのか
+
+
+*/
 export const selectCount = (state: RootState) => state.counter.value;
 
 // We can also write thunks by hand, which may contain both sync and async logic.
